@@ -3,7 +3,7 @@ Courier is an original toy compiled language written for the purposes of practic
 
 Check out the `dev_log.md` file, where I document my thought process throughout the development of this language.
 
-I am developing this language as I take the Stanford University [Compiler Theory](https://learning.edx.org/course/course-v1:StanfordOnline+SOE.YCSCS1+3T2020/home), as a means of self-study as the course progresses.
+I am developing this as I take the Stanford University [Compiler Theory](https://learning.edx.org/course/course-v1:StanfordOnline+SOE.YCSCS1+3T2020/home), as a means of self-study as the course progresses.
 
 The course is ultimately broken down into 6 parts:
 
