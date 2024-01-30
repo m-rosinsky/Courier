@@ -32,13 +32,16 @@ setup:
 compile: setup
 	@echo "Compiling sources..."
 
+	@echo "  [+] Compiling $(OBJS)/lexer.o"
+	@$(CC) $(CFLAGS) -o $(OBJS)/lexer.o -c $(SRCS)/lexer/lexer.cpp
+
 	@echo "done"
 
 link: setup compile
 	@echo "Linking binaries..."
 
 	@echo "  [+] Linking $(BINS)/$(OUTPUT_BIN)..."
-	@$(CC) $(CFLAGS) -o $(BINS)/$(OUTPUT_BIN) $(SRCS)/$(SRC_MAIN) # $(OBJS)/*.o
+	@$(CC) $(CFLAGS) -o $(BINS)/$(OUTPUT_BIN) $(SRCS)/$(SRC_MAIN) $(OBJS)/*.o
 
 	@echo "done"
 
