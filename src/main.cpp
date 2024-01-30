@@ -40,8 +40,8 @@ int main(int argc, char * argv[])
     for (size_t idx = 0; idx < lexer._tokens.size(); ++idx)
     {
         Token t = lexer._tokens.at(idx);
-        std::cout << "[" << idx << "]: ";
-        std::cout << dbg_tok_names[t._type] << " | " << t._lexeme << " | " << t._linenum << " | " << t._colnum << std::endl;
+        std::cout << "[" << idx << "]:\t";
+        std::cout << dbg_tok_names[t._type] << "\t| " << t._lexeme << "\t| " << t._linenum << "\t| " << t._colnum << std::endl;
     }
 
     std::cout << "Success" << std::endl;

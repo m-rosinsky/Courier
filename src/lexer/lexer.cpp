@@ -41,6 +41,35 @@ is_whitespace (char c)
     return c == ' ' || c == '\t' || c == '\f' || c == '\v' || c == '\r';
 }
 
+/*!
+ * @brief This is a helper function to determine alphabetic characters.
+ */
+static bool
+is_alpha (char c)
+{
+    return (c >= 'a' && c <= 'z') ||
+           (c >= 'A' && c <= 'Z') ||
+           (c == '_');
+}
+
+/*!
+ * @brief This is a helper function to determine numeric characters.
+ */
+static bool
+is_num (char c)
+{
+    return (c >= '0' && c <= '9');
+}
+
+/*!
+ * @brief This is a helper function to determine alphanumeric characters.
+ */
+static bool
+is_alphanum (char c)
+{
+    return is_alpha(c) || is_num(c);
+}
+
 /******************************************************************************/
 
 /*!
@@ -144,6 +173,35 @@ Lexer::lex_line (const std::string& __line, uint32_t __line_num)
             _tokens.emplace_back(type, "", __line_num, col_num);
 
             col_num++;
+            continue;
+        }
+
+        // Identifiers.
+        // Regex: [_a-zA-Z][_a-zA-Z0-9]+
+        // Identifiers start with an underscore or a letter, and are used
+        // to denote variable names and types.
+        if (is_alpha(c))
+        {
+            // Bookmark the starting column number of the identifier.
+            uint32_t start_col = col_num;
+
+            // String to hold the identifier.
+            std::string ident_str = "";
+
+            // Collect the identifier.
+            while(is_alphanum(c))
+            {
+                ident_str += c;
+                c = __line[++idx];
+                col_num++;
+            }
+
+            // Form the token from the identifier.
+            _tokens.emplace_back(TOKEN_IDENT, ident_str, __line_num, start_col);
+
+            // The index is currently looking at the next char, but the loop
+            // will increment idx again, so move it back.
+            idx--;
             continue;
         }
     }
