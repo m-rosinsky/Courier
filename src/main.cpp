@@ -30,10 +30,10 @@ int main(int argc, char * argv[])
 
     // Create the Lexer object.
     Lexer lexer(argv[1]);
-    if (SUCCESS != lexer.lex_file())
+    lexer.lex_file();
+    if (lexer._err.has_error())
     {
-        // Report error.
-        std::cerr << "Got error" << std::endl;
+        lexer._err.report();
         return 1;
     }
 

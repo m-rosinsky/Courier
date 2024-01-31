@@ -32,6 +32,9 @@ setup:
 compile: setup
 	@echo "Compiling sources..."
 
+	@echo "  [+] Compiling $(OBJS)/error.o"
+	@$(CC) $(CFLAGS) -o $(OBJS)/error.o -c $(SRCS)/error.cpp
+
 	@echo "  [+] Compiling $(OBJS)/lexer.o"
 	@$(CC) $(CFLAGS) -o $(OBJS)/lexer.o -c $(SRCS)/lexer/lexer.cpp
 

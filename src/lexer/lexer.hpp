@@ -81,6 +81,7 @@ struct Token
  *
  * @param _fname The filename of the source file to lex.
  * @param _tokens The sequence of tokens generated from lexical analysis.
+ * @param _err The error object to invoke.
  */
 class Lexer
 {
@@ -89,6 +90,7 @@ private:
 
 public:
     std::vector<Token> _tokens;
+    Error _err;
 
 public:
     // Ctors.
@@ -97,8 +99,8 @@ public:
         : _fname(__fname) {}
 
     // Methods.
-    ErrorCode lex_file (void);
-    ErrorCode lex_line (const std::string& __line, uint32_t __line_num);
+    void lex_file (void);
+    void lex_line (const std::string& __line, uint32_t __line_num);
 };
 
 #endif // _COURIER_SRC_LEXER_LEXER_HPP

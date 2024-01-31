@@ -7,6 +7,7 @@
  *              a sequence of tokens to pass into the parser.
  */
 
+#include <algorithm>
 #include <cerrno>
 #include <fstream>
 #include <map>
@@ -77,11 +78,9 @@ is_alphanum (char c)
  *
  * @return ErrorCode.
  */
-ErrorCode
+void
 Lexer::lex_file (void)
 {
-    ErrorCode status = SUCCESS;
-
     // These hold the current line information and line number.
     uint32_t line_num = 1;
     std::string line = "";
@@ -95,18 +94,18 @@ Lexer::lex_file (void)
         // Check specific error conditions.
         if (ENOENT == errno)
         {
-            status = ERR_FILE_NOT_FOUND;
+            _err = Error(ERR_FILE_NOT_FOUND, 0, 0, "");
             goto EXIT;
         }
-        status = ERR_FILE_BAD_OPEN;
+        _err = Error(ERR_FILE_BAD_OPEN, 0, 0, "");
         goto EXIT;
     }
 
     // Perform lexical analysis line-by-line.
     while (std::getline(infile, line))
     {
-        ErrorCode line_err = lex_line(line, line_num);
-        if (SUCCESS != line_err)
+        lex_line(line, line_num);
+        if (_err.has_error())
         {
             goto EXIT;
         }
@@ -121,8 +120,10 @@ Lexer::lex_file (void)
         {
             infile.close();
         }
-        return status;
+        return;
 }
+
+/******************************************************************************/
 
 /*!
  * @brief This line performs lexical analysis on a single line.
@@ -130,19 +131,16 @@ Lexer::lex_file (void)
  * @param __line The line from raw source.
  * @param __line_num The current line number.
  */
-ErrorCode
+void
 Lexer::lex_line (const std::string& __line, uint32_t __line_num)
 {
-    // The current status of the function.
-    ErrorCode status = SUCCESS;
-
     // The column number of the current character.
     uint32_t col_num = 1;
 
     // Loop over input string.
     for (size_t idx = 0; idx < __line.size(); ++idx)
     {
-        char c = __line.at(idx);
+        char c = __line[idx];
 
         // Whitespace.
         // Regex: '[ \t\f\r\v]+'
@@ -158,7 +156,7 @@ Lexer::lex_line (const std::string& __line, uint32_t __line_num)
         // line, so we can simply return without further analysis.
         if (CHAR_COMMENT == c)
         {
-            return SUCCESS;
+            return;
         }
 
         // Delimiters.
@@ -204,9 +202,65 @@ Lexer::lex_line (const std::string& __line, uint32_t __line_num)
             idx--;
             continue;
         }
+
+        // Numeric Literals.
+        // Regex: [-0-9]?[0-9.]*[0-9]
+        // Numeric literals are integers and floats, which may start with
+        // a negative sign.
+        if ((isdigit(c)) ||
+            (c == '-' && idx + 1 < __line.size() && isdigit(__line.at(idx+1))))
+        {
+            // Bookmark the starting column of the numeric literal.
+            uint32_t start_col = col_num;
+
+            // String to hold the literal.
+            std::string num_str = "";
+
+            // Handle optional negative sign.
+            if (c == '-')
+            {
+                num_str += c;
+                c = __line[++idx];
+                col_num++;
+            }
+
+            // Collect the literal.
+            while ((isdigit(c)) || c == '.')
+            {
+                num_str += c;
+                c = __line[++idx];
+                col_num++;
+            }
+
+            // The last character in the literal must not be a decimal point,
+            // and there must not be more than one decimal point.
+            if ((num_str.back() == '.') ||
+                (std::count(num_str.begin(), num_str.end(), '.') > 1))
+            {
+                _err = Error(ERR_LEX_INVAL_NUM, __line_num, start_col, num_str);
+                goto EXIT;
+            }
+
+            // Differentiate ints from floats.
+            TokenType t = (num_str.find('.') != std::string::npos)
+                ? TOKEN_LIT_FLOAT : TOKEN_LIT_INT;
+
+            // Create the token.
+            _tokens.emplace_back(t, num_str, __line_num, start_col);
+
+            // The index is currently looking at the next char, but the loop
+            // will increment idx again, so move it back.
+            idx--;
+            continue;
+        }
+
+        // Any tokens at this point are considered unrecognized.
+        _err = Error(ERR_LEX_UNREC_CHAR, __line_num, col_num, std::string(1, c));
+        goto EXIT;
     }
 
-    return status;
+    EXIT:
+        return;
 }
 
 /***   end of file   ***/
