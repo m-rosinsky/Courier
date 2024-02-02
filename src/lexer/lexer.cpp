@@ -72,6 +72,47 @@ is_alphanum (char c)
     return is_alpha(c) || is_num(c);
 }
 
+/*!
+ * @brief This is a helper function to determine binary operator characters.
+ */
+static bool
+is_bin_op (char c)
+{
+    return ((c == '+') ||
+            (c == '-') ||
+            (c == '*') ||
+            (c == '/') ||
+            (c == '='));
+}
+
+/*!
+ * @brief This is a helper function to determine unary operator characters.
+ */
+static bool
+is_un_op (char c)
+{
+    return (c == '!');
+}
+
+/*!
+ * @brief This is a helper function to determine any operator characters.
+ */
+static bool
+is_op (char c)
+{
+    return is_bin_op(c) || is_un_op(c);
+}
+
+/*!
+ * @brief This is a helper function to determine multi-comparison operators.
+ */
+static bool
+is_dbl_op (char c)
+{
+    return ((c == '=') || // ==
+            (c == '!'));  // !=
+}
+
 /******************************************************************************/
 
 /*!
@@ -268,6 +309,7 @@ Lexer::lex_line (const std::string& __line, uint32_t __line_num)
 
             // Collect the literal.
             bool str_closed = false;
+            col_num++;
             for (++idx; idx < __line.size(); ++idx)
             {
                 c = __line[idx];
@@ -323,6 +365,37 @@ Lexer::lex_line (const std::string& __line, uint32_t __line_num)
 
             // Create the token.
             _tokens.emplace_back(TOKEN_LIT_STR, str, __line_num, start_col);
+            col_num++;
+            continue;
+        }
+
+        // Operators.
+        // Regex: See operator strings above.
+        // Operators can be multicharacter or single character.
+        if (is_op(c))
+        {
+            // Bookmark the starting column of the operator, since it
+            // may be multi-character.
+            uint32_t start_col = col_num;
+
+            // String to hold the operator lexeme.
+            std::string str = "";
+
+            // Add the operator to the string.
+            str += c;
+
+            // Check if the operator can be multi-char.
+            if ((is_dbl_op(c)) &&
+                (idx + 1 < __line.size()) &&
+                (__line[idx + 1] == '='))
+            {
+                str += '=';
+                idx++;
+                col_num++;
+            }
+
+            _tokens.emplace_back(TOKEN_OP, str, __line_num, start_col);
+            col_num++;
             continue;
         }
 
