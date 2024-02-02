@@ -23,8 +23,10 @@ enum ErrorCode
     ERR_FILE_BAD_OPEN,
 
     // Lexical errors.
-    ERR_LEX_UNREC_CHAR, // Unrecognized character.
-    ERR_LEX_INVAL_NUM,  // Invalid numeric literal, such as 1.23.4.
+    ERR_LEX_UNEXP_CHAR,     // Unexpected character.
+    ERR_LEX_INVAL_NUM,      // Invalid numeric literal, such as 1.23.4.
+    ERR_LEX_INVAL_ESC,      // Invalid escape sequence in string literal.
+    ERR_LEX_UNCLOSED_STR,   // Unclosed string literal.
 };
 
 /*!

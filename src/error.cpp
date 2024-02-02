@@ -17,8 +17,10 @@ static std::vector<std::string> error_strings = {
     "Error opening file",
 
     // Lexical errors.
-    "Unrecognized character",
-    "Invalid numeric literal",  // Invalid numeric literal, such as 1.23.4.
+    "Unexpected character",
+    "Invalid numeric literal",
+    "Invalid escape sequence",
+    "Unclosed string",
 };
 
 /******************************************************************************/
@@ -34,8 +36,9 @@ Error::report (void) const noexcept
     std::cerr << error_strings[_code];
     if (_msg.length() > 0)
     {
-        std::cerr << " '" << _msg << "'" << std::endl;
+        std::cerr << " '" << _msg << "'";
     }
+    std::cerr << std::endl;
 }
 
 /***   end of file   ***/

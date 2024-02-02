@@ -16,7 +16,8 @@
 
 /******************************************************************************/
 
-#define CHAR_COMMENT 35 // '#'
+#define DBL_QUOTE       34 // '"'
+#define CHAR_COMMENT    35 // '#'
 
 /******************************************************************************/
 
@@ -254,8 +255,79 @@ Lexer::lex_line (const std::string& __line, uint32_t __line_num)
             continue;
         }
 
+        // String literals.
+        // Regex. ^"*$".
+        // String literals must occur on the same line between two double quotes.
+        if (c == DBL_QUOTE)
+        {
+            // Bookmark the starting column of the string literal.
+            uint32_t start_col = col_num;
+
+            // String to hold the literal.
+            std::string str = "";
+
+            // Collect the literal.
+            bool str_closed = false;
+            for (++idx; idx < __line.size(); ++idx)
+            {
+                c = __line[idx];
+                if (c == DBL_QUOTE)
+                {
+                    str_closed = true;
+                    break;
+                }
+
+                // Escape sequences.
+                if (c == '\\' && idx + 1 < __line.size())
+                {
+                    idx++;
+                    col_num++;
+                    c = __line[idx];
+
+                    // Check valid escape sequences.
+                    if (c == 't')
+                    {
+                        str += '\t';
+                    } else if (c == 'r')
+                    {
+                        str += '\r';
+                    } else if (c == 'n')
+                    {
+                        str += '\n';
+                    } else if (c == DBL_QUOTE)
+                    {
+                        str += '"';
+                    } else if (c == '0')
+                    {
+                        str += '\0';
+                    } else {
+                        _err = Error(ERR_LEX_INVAL_ESC, __line_num, col_num, "\\" + c);
+                        goto EXIT;
+                    }
+
+                    col_num++;
+                    continue;
+                }
+
+                // Add character to string literal.
+                str += c;
+                col_num++;
+            }
+
+            // If the string was not closed, this is an error.
+            if (!str_closed)
+            {
+                _err = Error(ERR_LEX_UNCLOSED_STR, __line_num, start_col, "");
+                goto EXIT;
+            }
+
+            // Create the token.
+            _tokens.emplace_back(TOKEN_LIT_STR, str, __line_num, start_col);
+            continue;
+        }
+
         // Any tokens at this point are considered unrecognized.
-        _err = Error(ERR_LEX_UNREC_CHAR, __line_num, col_num, std::string(1, c));
+        _err = Error(ERR_LEX_UNEXP_CHAR, __line_num, col_num, std::string(1, c));
         goto EXIT;
     }
 
