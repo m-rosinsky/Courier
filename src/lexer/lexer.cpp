@@ -122,6 +122,25 @@ is_dbl_op (char c)
             (c == '!'));  // !=
 }
 
+/*!
+ * @brief This is a helper function to determine if a string is a valid
+ *          integer literal for types (i.e. u8, i32, u64).
+ * 
+ *          Only the integer should be passed here, and the integer must
+ *          be between 1 and 64 inclusive.
+ */
+static bool
+is_valid_int_type (const std::string& num_str)
+{
+    for (char c : num_str)
+    {
+        if (!is_num(c)) { return false; }
+    }
+    
+    uint32_t value = std::stoi(num_str);
+    return (value >= 1 && value <= 64);
+}
+
 /******************************************************************************/
 
 /*!
@@ -252,6 +271,34 @@ Lexer::lex_line (const std::string& __line, uint32_t __line_num)
             {
                 t = kw->second;     // Extract the token type from the entry.
                 ident_str.clear();  // KW tokens do not take a lexeme.
+            }
+
+            // Check if the identifier is an unsigned int type.
+            else if ((ident_str.size() >= 2 ) &&
+                     (ident_str[0] == 'u') &&
+                     (is_num(ident_str[1])))
+            {
+                // Extract the number after the 'u'.
+                std::string num_str = ident_str.substr(1);
+                if (is_valid_int_type(num_str))
+                {
+                    t = TOKEN_TYPE_UINT;
+                    ident_str = num_str;
+                }
+            }
+
+            // Check if the identifier is a signed int type.
+            else if ((ident_str.size() >= 2 ) &&
+                     (ident_str[0] == 'i') &&
+                     (is_num(ident_str[1])))
+            {
+                // Extract the number after the 'i'.
+                std::string num_str = ident_str.substr(1);
+                if (is_valid_int_type(num_str))
+                {
+                    t = TOKEN_TYPE_INT;
+                    ident_str = num_str;
+                }
             }
 
             // Form the token from the identifier.

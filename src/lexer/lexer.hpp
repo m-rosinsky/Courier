@@ -41,6 +41,10 @@ enum TokenType
     TOKEN_KW_IF,
     TOKEN_KW_ELSE,
     TOKEN_KW_WHILE,
+
+    // Type keywords.
+    TOKEN_TYPE_UINT,    // Unsigned integer type (i.e. u8)
+    TOKEN_TYPE_INT,     // Signed integer type (i.e. i32)
 };
 
 static std::vector<std::string> dbg_tok_names = {
@@ -58,6 +62,8 @@ static std::vector<std::string> dbg_tok_names = {
     "TOKEN_KW_IF",
     "TOKEN_KW_ELSE",
     "TOKEN_KW_WHILE",
+    "TOKEN_TYPE_UINT",
+    "TOKEN_TYPE_INT",
 };
 
 /*!
