@@ -32,6 +32,15 @@ static std::map<char, TokenType> delim_map = {
     {';', TOKEN_SEMICOLON},
 };
 
+/*!
+ * @brief This map maps keywords to their token types.
+ */
+static std::map<std::string, TokenType> kw_map {
+    {"if", TOKEN_KW_IF},
+    {"else", TOKEN_KW_ELSE},
+    {"while", TOKEN_KW_WHILE},
+};
+
 /******************************************************************************/
 
 /*!
@@ -236,8 +245,17 @@ Lexer::lex_line (const std::string& __line, uint32_t __line_num)
                 col_num++;
             }
 
+            // Check if the identifier is a keyword.
+            TokenType t = TOKEN_IDENT;
+            auto kw = kw_map.find(ident_str);
+            if (kw != kw_map.end())
+            {
+                t = kw->second;     // Extract the token type from the entry.
+                ident_str.clear();  // KW tokens do not take a lexeme.
+            }
+
             // Form the token from the identifier.
-            _tokens.emplace_back(TOKEN_IDENT, ident_str, __line_num, start_col);
+            _tokens.emplace_back(t, ident_str, __line_num, start_col);
 
             // The index is currently looking at the next char, but the loop
             // will increment idx again, so move it back.

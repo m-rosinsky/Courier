@@ -36,6 +36,11 @@ enum TokenType
     TOKEN_LPAREN,       // '('
     TOKEN_RPAREN,       // ')'
     TOKEN_SEMICOLON,    // ';'
+
+    // Keywords.
+    TOKEN_KW_IF,
+    TOKEN_KW_ELSE,
+    TOKEN_KW_WHILE,
 };
 
 static std::vector<std::string> dbg_tok_names = {
@@ -50,6 +55,9 @@ static std::vector<std::string> dbg_tok_names = {
     "TOKEN_LPAREN",
     "TOKEN_RPAREN",
     "TOKEN_SEMICOLON",
+    "TOKEN_KW_IF",
+    "TOKEN_KW_ELSE",
+    "TOKEN_KW_WHILE",
 };
 
 /*!
