@@ -21,6 +21,9 @@ static std::vector<std::string> error_strings = {
     "Invalid numeric literal",
     "Invalid escape sequence",
     "Unclosed string",
+
+    // Parser errors.
+    "Syntax error",
 };
 
 /******************************************************************************/

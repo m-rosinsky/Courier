@@ -9,6 +9,7 @@
 
 #include "error.hpp"
 #include "lexer/lexer.hpp"
+#include "parser/parser.hpp"
 
 /*!
  * @brief This function shows program usage.
@@ -42,6 +43,14 @@ int main(int argc, char * argv[])
         Token t = lexer._tokens.at(idx);
         std::cout << "[" << idx << "]:\t";
         std::cout << dbg_tok_names[t._type] << "\t| " << t._lexeme << "\t| " << t._linenum << "\t| " << t._colnum << std::endl;
+    }
+
+    Parser parser;
+    parser.parse(lexer._tokens);
+    if (parser._err.has_error())
+    {
+        parser._err.report();
+        return 1;
     }
 
     std::cout << "Success" << std::endl;

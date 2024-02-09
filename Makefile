@@ -38,6 +38,9 @@ compile: setup
 	@echo "  [+] Compiling $(OBJS)/lexer.o"
 	@$(CC) $(CFLAGS) -o $(OBJS)/lexer.o -c $(SRCS)/lexer/lexer.cpp
 
+	@echo "  [+] Compiling $(OBJS)/parser.o"
+	@$(CC) $(CFLAGS) -o $(OBJS)/parser.o -c $(SRCS)/parser/parser.cpp
+
 	@echo "done"
 
 link: setup compile
